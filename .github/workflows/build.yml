@@ -15,15 +15,19 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Read .nvmrc
+      id: nvmrc
+      run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential python3
+        sudo apt-get install -y build-essential python3 libxss1 libgconf-2-4
 
     - name: Install npm dependencies
       run: npm install
