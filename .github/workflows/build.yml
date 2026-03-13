@@ -18,10 +18,18 @@ jobs:
       with:
         node-version: '18.15.0'
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential python3
+        sudo apt-get install -y \
+          build-essential \
+          python3 \
+          libxss1 \
+          libgconf-2-4 \
+          libgtk-3-0 \
+          libxkbfile-dev \
+          libfuse-dev \
+          fuse
 
     - name: Install yarn
       run: npm install -g yarn
@@ -29,11 +37,22 @@ jobs:
     - name: Install project dependencies
       run: yarn install
 
-    - name: Build
-      run: yarn build-linux
+    - name: Build everything
+      run: yarn build-everything
+
+    - name: Build release (Linux)
+      run: yarn build-release
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: session-desktop-linux
-        path: dist/
+        path: release/
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release/**
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
