@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Linux Release
 
 on:
   push:
@@ -9,19 +9,8 @@ on:
     branches: [ main, unstable ]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            artifact: session-desktop-linux
-          - os: windows-latest
-            artifact: session-desktop-windows
-          - os: macos-latest
-            artifact: session-desktop-macos
-
-    runs-on: ${{ matrix.os }}
+  build-linux:
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -31,8 +20,7 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Install dependencies (Ubuntu)
-      if: runner.os == 'Linux'
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential python3
@@ -40,13 +28,13 @@ jobs:
     - name: Install npm dependencies
       run: npm install
 
-    - name: Build
-      run: npm run build
+    - name: Build Linux
+      run: npm run build-linux
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.artifact }}
+        name: session-desktop-linux
         path: dist/
 
     - name: Create Release
