@@ -5,8 +5,6 @@ on:
     branches: [ main, unstable, add-proxy-support ]
     tags:
       - 'v*'
-  pull_request:
-    branches: [ main, unstable ]
 
 jobs:
   build-linux:
@@ -15,36 +13,27 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Read .nvmrc
-      id: nvmrc
-      run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
-
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
+        node-version: '18.15.0'
 
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential python3 libxss1 libgconf-2-4
+        sudo apt-get install -y build-essential python3
 
-    - name: Install npm dependencies
-      run: npm install
+    - name: Install yarn
+      run: npm install -g yarn
 
-    - name: Build Linux
-      run: npm run build-linux
+    - name: Install project dependencies
+      run: yarn install
+
+    - name: Build
+      run: yarn build-linux
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: session-desktop-linux
         path: dist/
-
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: dist/**
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
