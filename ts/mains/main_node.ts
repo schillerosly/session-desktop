@@ -19,6 +19,16 @@ import {
   systemPreferences,
 } from 'electron';
 
+// 强制开启代理支持
+const proxyServer = 'socks5://127.0.0.1:9150';
+process.env.GLOBAL_AGENT_HTTP_PROXY = proxyServer;
+process.env.GLOBAL_AGENT_HTTPS_PROXY = proxyServer;
+
+// 针对 Electron 网络层的设置
+app.commandLine.appendSwitch('proxy-server', proxyServer);
+app.commandLine.appendSwitch('proxy-bypass-list', '<local>');
+
+// 其他 imports 继续...
 import crypto from 'crypto';
 import fs from 'fs';
 import { copyFile, appendFile } from 'node:fs/promises';
